@@ -15,9 +15,18 @@ class Stemmer:
         return [self.stemmer(i) for i in word_tokenize(text)]
 
 class Classifier:
+    def __init__(self, model=None):
+        self.model = model
+
     def load(self, model_path):
         with open(model_path, 'rb') as model_file:
             self.model = pickle.load(model_file)
+        self.model.steps[0][1].tokenizer = Stemmer()
+
+    def dump(self, model_path):
+        self.model.steps[0][1].tokenizer = None
+        with open(model_path, 'wb') as model_file:
+            pickle.dump(self.model, model_file)
 
     def predict(self, text):
         predicted = self.model.predict([text])
